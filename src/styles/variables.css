@@ -1,0 +1,50 @@
+:root {
+  /* Palette */
+  --bg: #090b0e;
+  --card: #15191f;
+  --surface: #20252d;
+  --border: #242a32;
+  --text: #f5f6f7;
+  --text-2: #9299a3;
+  --text-3: #5d646e;
+  --accent: #2ccac5;
+  --accent-dim: rgba(44, 202, 197, 0.14);
+  --accent-ink: #062423;
+  --danger: #e5666b;
+  --danger-dim: rgba(229, 102, 107, 0.12);
+  --warn: #d9a54a;
+
+  /* Shape */
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+
+  /* Spacing */
+  --gap-1: 4px;
+  --gap-2: 8px;
+  --gap-3: 12px;
+  --gap-4: 16px;
+  --gap-5: 20px;
+  --gap-6: 24px;
+
+  /* Type */
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-num: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
+  --fs-xs: 12px;
+  --fs-sm: 14px;
+  --fs-md: 16px;
+  --fs-lg: 18px;
+  --fs-xl: 22px;
+  --fs-2xl: 28px;
+
+  /* Layout */
+  --tap: 44px;
+  --nav-h: 56px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --page-max: 560px;
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
