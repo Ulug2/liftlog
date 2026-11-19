@@ -25,7 +25,15 @@ export interface AppState {
   profile: Profile;
   workoutUi: WorkoutUiState | null;
   storageKind: Storage['kind'] | null;
-  sync: { status: SyncStatus; lastSyncedAt: string | null; error: string | null; email: string | null };
+  sync: {
+    status: SyncStatus;
+    lastSyncedAt: string | null;
+    error: string | null;
+    email: string | null;
+    userId: string | null;
+    /** true once the saved login (if any) has been read from storage */
+    authChecked: boolean;
+  };
   /** number of local changes not yet confirmed by the server */
   pending: number;
 }
@@ -51,7 +59,7 @@ let state: AppState = {
   profile: DEFAULT_PROFILE,
   workoutUi: null,
   storageKind: null,
-  sync: { status: 'local', lastSyncedAt: null, error: null, email: null },
+  sync: { status: 'local', lastSyncedAt: null, error: null, email: null, userId: null, authChecked: false },
   pending: 0,
 };
 

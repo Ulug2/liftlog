@@ -86,7 +86,7 @@ export default function SettingsScreen() {
               <div className="list-row__sub">One row per set — opens in Numbers / Sheets</div>
             </div>
           </button>
-          {isEmpty && (
+          {isEmpty && !db.sync.userId && (
             <button
               id="sample"
               className="list-row"

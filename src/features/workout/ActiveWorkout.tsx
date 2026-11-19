@@ -59,6 +59,8 @@ export function ActiveWorkout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [finishOpen, setFinishOpen] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [direction, setDirection] = useState<'from-right' | 'from-left' | 'from-none'>('from-none');
+  const scrollRef = useRef<HTMLDivElement>(null);
   const now = useNow(1000, !!session && !session.paused_at);
   useWakeLock(!!session);
 
@@ -71,12 +73,16 @@ export function ActiveWorkout() {
 
   if (!session) {
     return (
-      <div className="page page--no-nav">
+      <div className="screen">
+        <div className="screen__scroll">
+        <div className="page page--no-nav">
         <EmptyState icon={<Check size={24} />} title="No workout in progress">
           <button className="btn btn--primary" style={{ marginTop: 12 }} onClick={() => navigate('/')}>
             Go home
           </button>
         </EmptyState>
+        </div>
+        </div>
       </div>
     );
   }
@@ -98,12 +104,17 @@ export function ActiveWorkout() {
     if (sets.length > 0 && d === sets.length) exDone++;
   }
 
+  const jumpTo = (id: string) => {
+    const target = wes.findIndex((w) => w.id === id);
+    if (target === currentIndex) return;
+    setDirection(target > currentIndex ? 'from-right' : 'from-left');
+    setCurrentExercise(id);
+    scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const go = (delta: number) => {
     const next = wes[currentIndex + delta];
-    if (next) {
-      setCurrentExercise(next.id);
-      window.scrollTo({ top: 0 });
-    }
+    if (next) jumpTo(next.id);
   };
 
   const doFinish = () => {
@@ -116,7 +127,7 @@ export function ActiveWorkout() {
   const nextEx = wes[currentIndex + 1];
 
   return (
-    <div className="workout">
+    <div className="screen workout screen--up">
       <header className="workout-head">
         <button className="icon-btn" onClick={() => navigate('/')} aria-label="Minimize workout">
           <ChevronDown size={26} />
@@ -133,6 +144,7 @@ export function ActiveWorkout() {
         </button>
       </header>
 
+      <div className="screen__scroll" ref={scrollRef}>
       <div className="workout-progress">
         <div className="workout-progress__text">
           <span>
@@ -153,11 +165,11 @@ export function ActiveWorkout() {
         </button>
       )}
 
-      <ExerciseStrip wes={wes} idx={idx} currentId={current?.id} />
+      <ExerciseStrip wes={wes} idx={idx} currentId={current?.id} onPick={jumpTo} />
 
       <main className="workout-main">
         {current ? (
-          <ExerciseLogger key={current.id} session={session} we={current} idx={idx} />
+          <ExerciseLogger key={current.id} session={session} we={current} idx={idx} direction={direction} />
         ) : (
           <EmptyState icon={<Plus size={24} />} title="Empty workout">
             <p style={{ marginBottom: 16 }}>Add exercises as you go.</p>
@@ -167,6 +179,7 @@ export function ActiveWorkout() {
           <Plus size={18} /> Add exercise to this workout
         </button>
       </main>
+      </div>
 
       <footer className="workout-foot">
         {ui?.rest && <RestTimer rest={ui.rest} />}
@@ -246,7 +259,7 @@ export function ActiveWorkout() {
 
 /* ----------------------------- Exercise strip ----------------------------- */
 
-function ExerciseStrip({ wes, idx, currentId }: { wes: WorkoutExercise[]; idx: WorkoutIndex; currentId?: string }) {
+function ExerciseStrip({ wes, idx, currentId, onPick }: { wes: WorkoutExercise[]; idx: WorkoutIndex; currentId?: string; onPick: (id: string) => void }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     ref.current?.querySelector<HTMLElement>('.is-current')?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
@@ -262,7 +275,7 @@ function ExerciseStrip({ wes, idx, currentId }: { wes: WorkoutExercise[]; idx: W
           .filter(Boolean)
           .join(' ');
         return (
-          <button key={w.id} className={cls} onClick={() => setCurrentExercise(w.id)}>
+          <button key={w.id} className={cls} onClick={() => onPick(w.id)}>
             <span className="ex-chip__idx">{complete ? <Check size={12} strokeWidth={3} /> : i + 1}</span>
             <span className="ex-chip__name">{w.exercise_name_snapshot}</span>
           </button>
@@ -274,7 +287,17 @@ function ExerciseStrip({ wes, idx, currentId }: { wes: WorkoutExercise[]; idx: W
 
 /* ---------------------------- Exercise logger ---------------------------- */
 
-function ExerciseLogger({ session, we, idx }: { session: WorkoutSession; we: WorkoutExercise; idx: WorkoutIndex }) {
+function ExerciseLogger({
+  session,
+  we,
+  idx,
+  direction,
+}: {
+  session: WorkoutSession;
+  we: WorkoutExercise;
+  idx: WorkoutIndex;
+  direction: 'from-right' | 'from-left' | 'from-none';
+}) {
   const db = useDb();
   const navigate = useNavigate();
   const exercise = db.tables.exercises[we.exercise_id];
@@ -300,7 +323,7 @@ function ExerciseLogger({ session, we, idx }: { session: WorkoutSession; we: Wor
   const repPlaceholder = we.max_reps != null ? String(we.max_reps) : undefined;
 
   return (
-    <section className={`logger${skipped ? ' is-skipped' : ''}`}>
+    <section className={`logger ${direction}${skipped ? ' is-skipped' : ''}`}>
       <div className="logger__head">
         <div style={{ minWidth: 0, flex: 1 }}>
           <h1 className="logger__name">{we.exercise_name_snapshot}</h1>

@@ -1,23 +1,25 @@
 :root {
-  /* Palette */
-  --bg: #090b0e;
-  --card: #15191f;
-  --surface: #20252d;
-  --border: #242a32;
-  --text: #f5f6f7;
-  --text-2: #9299a3;
-  --text-3: #5d646e;
-  --accent: #2ccac5;
-  --accent-dim: rgba(44, 202, 197, 0.14);
-  --accent-ink: #062423;
-  --danger: #e5666b;
-  --danger-dim: rgba(229, 102, 107, 0.12);
-  --warn: #d9a54a;
+  /* Palette — neutral black & white, ChatGPT-style dark */
+  --bg: #212121;
+  --bg-deep: #171717;
+  --card: #2a2a2a;
+  --surface: #383838;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --text: #ececec;
+  --text-2: #b4b4b4;
+  --text-3: #808080;
+  --accent: #ffffff;
+  --accent-dim: rgba(255, 255, 255, 0.09);
+  --accent-ink: #0d0d0d;
+  --danger: #f17171;
+  --danger-dim: rgba(241, 113, 113, 0.12);
+  --warn: #d7b26a;
 
   /* Shape */
   --radius-sm: 8px;
   --radius: 12px;
-  --radius-lg: 16px;
+  --radius-lg: 18px;
 
   /* Spacing */
   --gap-1: 4px;
@@ -39,12 +41,18 @@
 
   /* Layout */
   --tap: 44px;
-  --nav-h: 56px;
+  --nav-h: 58px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
   --page-max: 560px;
 
+  /* Motion */
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --dur-fast: 160ms;
+  --dur: 280ms;
+  --dur-slow: 420ms;
 }

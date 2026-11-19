@@ -61,6 +61,10 @@ public/                  manifest, service worker, icons
 
 ### Key decisions
 
+- **Sign-in first.** With Supabase configured, the app opens on the sign-in screen. The session is stored on the device and refreshed automatically; only an explicit sign-out (or a revoked session) logs you out. Offline launches use the saved session.
+- **App frame layout.** The document never scrolls; content scrolls inside a fixed frame and the tab bar is a normal flex child. This keeps iOS Safari's toolbar and rubber-band scrolling from moving the tab bar.
+- **Motion** lives in `src/styles/motion.css`: tab cross-fades, push/pop slides, sheets that animate out, a sliding tab indicator, staggered lists, set-completion pops and chart draw-in. All of it is disabled when the phone's Reduce Motion setting is on.
+
 - **Local-first.** Every tap writes to memory and IndexedDB immediately; the UI never waits for the network. Changed rows go into an outbox that syncs in the background.
 - **Timers use timestamps, never intervals.** The workout keeps `started_at`, `paused_at`, `total_paused_seconds`; the rest timer keeps `endsAt`. Displayed time is recomputed from `Date.now()` on every tick and whenever the app becomes visible, so locking the phone or switching apps doesn't drift it.
 - **History is immutable to routine edits.** Starting a workout snapshots each exercise's name, equipment, type and targets into `workout_exercises`. Renaming an exercise or changing 3 → 4 sets never rewrites old sessions.

@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { CalendarDays, ChevronRight, Dumbbell, House, TrendingUp } from 'lucide-react';
 import { useDb } from '../lib/db';
 import { liveElapsedSeconds, workoutIndex } from '../lib/queries';
@@ -17,6 +17,11 @@ export function BottomNav() {
   const active = workoutIndex(db.tables).active;
   const now = useNow(1000, !!active);
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const activeIndex = Math.max(
+    0,
+    TABS.findIndex((t) => (t.end ? pathname === t.to : pathname.startsWith(t.to))),
+  );
   return (
     <nav className="bottom-nav">
       {active && (
@@ -26,13 +31,14 @@ export function BottomNav() {
             <span style={{ fontWeight: 600 }}>{active.workout_name_snapshot}</span>
             <span className="muted"> · {active.paused_at ? 'Paused' : 'In progress'}</span>
           </span>
-          <span className="num accent" style={{ fontWeight: 600 }}>
+          <span className="num" style={{ fontWeight: 600 }}>
             {fmtDuration(liveElapsedSeconds(active, now))}
           </span>
           <ChevronRight size={18} className="faint" />
         </button>
       )}
       <div className="bottom-nav__inner">
+        <span className="bottom-nav__pill" aria-hidden style={{ transform: `translateX(${activeIndex * 100}%)` }} />
         {TABS.map(({ to, label, icon: Icon, end }) => (
           <NavLink key={to} to={to} end={end} className={({ isActive }) => (isActive ? 'active' : '')}>
             <Icon size={22} strokeWidth={2} />

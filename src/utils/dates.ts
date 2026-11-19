@@ -93,3 +93,8 @@ export function fmtShortDay(d: Date | string): string {
   if (r === 'Today' || r === 'Yesterday') return r;
   return new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
+
+/** "Good evening, Sir!" */
+export function greetSir(d = new Date()): string {
+  return `${greeting(d)}, Sir!`;
+}

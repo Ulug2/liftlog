@@ -7,6 +7,7 @@ import './styles/variables.css';
 import './styles/global.css';
 import './styles/components.css';
 import './styles/features.css';
+import './styles/motion.css';
 
 const root = createRoot(document.getElementById('root')!);
 

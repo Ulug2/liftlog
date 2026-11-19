@@ -105,37 +105,37 @@ export function LineChart({
       >
         <defs>
           <linearGradient id="chart-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2CCAC5" stopOpacity="0.18" />
-            <stop offset="100%" stopColor="#2CCAC5" stopOpacity="0" />
+            <stop offset="0%" stopColor="#ECECEC" stopOpacity="0.14" />
+            <stop offset="100%" stopColor="#ECECEC" stopOpacity="0" />
           </linearGradient>
         </defs>
         {geo.ticks.map((t, i) => (
           <g key={i}>
-            <line x1={pad.l} x2={width - pad.r} y1={geo.py(t)} y2={geo.py(t)} stroke="#242A32" strokeWidth="1" />
-            <text x={pad.l - 8} y={geo.py(t) + 4} textAnchor="end" fontSize="11" fill="#5D646E">
+            <line x1={pad.l} x2={width - pad.r} y1={geo.py(t)} y2={geo.py(t)} stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+            <text x={pad.l - 8} y={geo.py(t) + 4} textAnchor="end" fontSize="11" fill="#808080">
               {formatY(t)}
             </text>
           </g>
         ))}
-        <path d={area} fill="url(#chart-fill)" />
-        <path d={path} fill="none" stroke="#2CCAC5" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        <line x1={geo.px(sel)} x2={geo.px(sel)} y1={pad.t} y2={pad.t + geo.ih} stroke="#20252D" strokeWidth="1" />
+        <path key={`a${path}`} className="chart__area" d={area} fill="url(#chart-fill)" />
+        <path key={`l${path}`} className="chart__line" pathLength={1} d={path} fill="none" stroke="#ECECEC" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        <line x1={geo.px(sel)} x2={geo.px(sel)} y1={pad.t} y2={pad.t + geo.ih} stroke="rgba(255,255,255,0.18)" strokeWidth="1" />
         {points.map((p, i) => (
           <circle
             key={i}
             cx={geo.px(i)}
             cy={geo.py(p.y)}
             r={i === sel ? 5 : points.length > 30 ? 0 : 3}
-            fill={i === sel ? '#2CCAC5' : p.highlight ? '#2CCAC5' : '#15191F'}
-            stroke="#2CCAC5"
+            fill={i === sel || p.highlight ? '#ECECEC' : '#2A2A2A'}
+            stroke="#ECECEC"
             strokeWidth="2"
           />
         ))}
-        <text x={pad.l} y={height - 6} fontSize="11" fill="#5D646E">
+        <text x={pad.l} y={height - 6} fontSize="11" fill="#808080">
           {formatX(points[0].x)}
         </text>
         {points.length > 1 && (
-          <text x={width - pad.r} y={height - 6} textAnchor="end" fontSize="11" fill="#5D646E">
+          <text x={width - pad.r} y={height - 6} textAnchor="end" fontSize="11" fill="#808080">
             {formatX(points[points.length - 1].x)}
           </text>
         )}

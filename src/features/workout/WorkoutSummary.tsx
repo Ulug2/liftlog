@@ -28,6 +28,8 @@ export function WorkoutSummary() {
   }
 
   return (
+    <div className="screen">
+      <div className="screen__scroll">
     <div className="page page--no-nav summary">
       <div className="summary__hero">
         <div className="summary__check">
@@ -71,6 +73,8 @@ export function WorkoutSummary() {
         <button className="btn btn--block" onClick={() => navigate(`/history/${session.id}`, { replace: true })}>
           Review workout
         </button>
+      </div>
+    </div>
       </div>
     </div>
   );

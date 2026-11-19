@@ -13,7 +13,7 @@
 }
 
 .card--accent {
-  border-color: rgba(44, 202, 197, 0.45);
+  border-color: var(--border-strong);
 }
 
 .eyebrow {
@@ -39,13 +39,13 @@
   background: var(--surface);
   color: var(--text);
   border: 1px solid var(--border);
-  transition: transform 120ms var(--ease), background 120ms, opacity 120ms;
+  transition: transform var(--dur-fast) var(--ease), background var(--dur-fast), opacity var(--dur-fast), color var(--dur-fast);
   white-space: nowrap;
 }
 
 .btn:active {
-  transform: scale(0.98);
-  opacity: 0.85;
+  transform: scale(0.97);
+  opacity: 0.88;
 }
 
 .btn:disabled {
@@ -205,7 +205,7 @@ a.list-row:active {
   border: 1px solid var(--border);
   color: var(--text);
   outline: none;
-  transition: border-color 120ms;
+  transition: border-color var(--dur-fast) var(--ease);
   -webkit-appearance: none;
   appearance: none;
 }
@@ -218,7 +218,7 @@ a.list-row:active {
 .input:focus,
 .textarea:focus,
 .select:focus {
-  border-color: var(--accent);
+  border-color: rgba(255, 255, 255, 0.45);
 }
 
 .input::placeholder,
@@ -284,6 +284,7 @@ a.list-row:active {
 /* ---------- Segmented control ---------- */
 
 .segmented {
+  position: relative;
   display: flex;
   background: var(--card);
   border: 1px solid var(--border);
@@ -299,12 +300,26 @@ a.list-row:active {
   font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--text-2);
-  transition: background 150ms, color 150ms;
+  transition: color var(--dur) var(--ease);
+}
+
+.segmented button {
+  position: relative;
+  z-index: 1;
 }
 
 .segmented button[aria-pressed='true'] {
-  background: var(--surface);
   color: var(--text);
+}
+
+.segmented__thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  border-radius: 9px;
+  background: var(--surface);
+  transition: transform var(--dur) var(--ease-spring);
 }
 
 /* ---------- Chips ---------- */
@@ -327,7 +342,7 @@ a.list-row:active {
 }
 
 .chip--warn {
-  background: rgba(217, 165, 74, 0.12);
+  background: rgba(215, 178, 106, 0.12);
   color: var(--warn);
 }
 
@@ -349,7 +364,7 @@ a.list-row:active {
 
 .weekday-picker button[aria-pressed='true'] {
   background: var(--accent-dim);
-  border-color: rgba(44, 202, 197, 0.5);
+  border-color: rgba(255, 255, 255, 0.4);
   color: var(--accent);
 }
 
@@ -358,9 +373,9 @@ a.list-row:active {
 .sheet-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.6);
   z-index: 100;
-  animation: fade-in 160ms ease-out;
+  animation: fade-in var(--dur) var(--ease-out) both;
 }
 
 .sheet {
@@ -374,18 +389,27 @@ a.list-row:active {
   flex-direction: column;
   background: var(--card);
   border-top: 1px solid var(--border);
-  border-radius: 20px 20px 0 0;
+  border-radius: 22px 22px 0 0;
   padding-bottom: var(--safe-bottom);
-  animation: sheet-in 220ms var(--ease);
+  animation: sheet-in var(--dur-slow) var(--ease-spring) both;
   max-width: var(--page-max);
   margin: 0 auto;
+  will-change: transform;
+}
+
+.sheet-backdrop.is-closing {
+  animation: fade-out var(--dur) var(--ease) both;
+}
+
+.sheet.is-closing {
+  animation: sheet-out var(--dur) var(--ease) both;
 }
 
 .sheet__grip {
   width: 36px;
   height: 5px;
   border-radius: 3px;
-  background: var(--border);
+  background: var(--border-strong);
   margin: 8px auto 2px;
   flex: none;
 }
@@ -437,6 +461,7 @@ a.list-row:active {
   border-radius: var(--radius);
   font-size: var(--fs-md);
   text-align: left;
+  transition: background var(--dur-fast);
 }
 
 .action-list button:active {
@@ -452,44 +477,42 @@ a.list-row:active {
   color: var(--danger);
 }
 
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-}
-
-@keyframes sheet-in {
-  from {
-    transform: translateY(100%);
-  }
-}
-
 /* ---------- Bottom navigation ---------- */
+/* A normal flex child of the app frame (not position:fixed), so it never moves. */
 
 .bottom-nav {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
+  flex: none;
   z-index: 50;
-  background: rgba(9, 11, 14, 0.88);
-  -webkit-backdrop-filter: saturate(160%) blur(18px);
-  backdrop-filter: saturate(160%) blur(18px);
+  background: var(--bg-deep);
   border-top: 1px solid var(--border);
   padding-bottom: var(--safe-bottom);
-  padding-left: var(--safe-left);
-  padding-right: var(--safe-right);
 }
 
 .bottom-nav__inner {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   max-width: var(--page-max);
   margin: 0 auto;
   height: var(--nav-h);
+  padding: 6px 8px;
+}
+
+.bottom-nav__pill {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 8px;
+  width: calc((100% - 16px) / 4);
+  border-radius: 14px;
+  background: var(--accent-dim);
+  transition: transform var(--dur-slow) var(--ease-spring);
+  pointer-events: none;
 }
 
 .bottom-nav a {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -498,11 +521,19 @@ a.list-row:active {
   font-size: 11px;
   font-weight: 600;
   color: var(--text-3);
-  transition: color 150ms;
+  transition: color var(--dur) var(--ease);
+}
+
+.bottom-nav a svg {
+  transition: transform var(--dur) var(--ease-spring);
+}
+
+.bottom-nav a:active svg {
+  transform: scale(0.88);
 }
 
 .bottom-nav a.active {
-  color: var(--accent);
+  color: var(--text);
 }
 
 .resume-bar {
@@ -605,7 +636,7 @@ a.list-row:active {
 
 .sortable-item.dragging > * {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  border-color: rgba(44, 202, 197, 0.5);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .drag-handle {
@@ -632,7 +663,7 @@ a.list-row:active {
   position: fixed;
   left: 50%;
   bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px);
-  transform: translateX(-50%);
+  translate: -50% 0;
   z-index: 200;
   display: flex;
   align-items: center;
@@ -643,6 +674,6 @@ a.list-row:active {
   padding: 10px 10px 10px 16px;
   font-size: var(--fs-sm);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  animation: fade-in 160ms;
+  animation: toast-in var(--dur-slow) var(--ease-spring) both;
   max-width: calc(100vw - 32px);
 }

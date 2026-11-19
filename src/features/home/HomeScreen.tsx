@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronRight, Dumbbell, Moon, Play, Settings, Sparkles } from 'lucide-react';
 import { useDb } from '../../lib/db';
+import { syncConfigured } from '../../lib/supabase';
 import {
   activeRoutine,
   dayExercises,
@@ -13,7 +14,7 @@ import {
   workoutsThisWeek,
 } from '../../lib/queries';
 import { clearDayLog, logRestDay, skipReasonLabel } from '../../lib/actions';
-import { fmtDate, fmtShortDay, greeting, localDateKey, WEEKDAY_LETTER } from '../../utils/dates';
+import { fmtDate, fmtShortDay, greetSir, localDateKey, WEEKDAY_LETTER } from '../../utils/dates';
 import { Sheet } from '../../components/ui';
 import { useStartWorkout } from '../workout/useStartWorkout';
 import { SkipSheet } from './SkipSheet';
@@ -45,7 +46,7 @@ export function HomeScreen() {
     <div className="page">
       <header className="page-header">
         <div>
-          <div className="page-title">{greeting(today)}</div>
+          <div className="page-title">{greetSir(today)}</div>
           <div className="page-subtitle">{fmtDate(today, { weekday: 'long', month: 'long', day: 'numeric' })}</div>
         </div>
         <div className="row" style={{ gap: 0 }}>
@@ -66,9 +67,11 @@ export function HomeScreen() {
             <button className="btn btn--primary btn--lg btn--block" onClick={() => navigate('/routine')}>
               <Dumbbell size={20} /> Create routine
             </button>
-            <button className="btn btn--ghost btn--block" onClick={() => navigate('/settings#sample')}>
-              <Sparkles size={18} /> Explore with sample data
-            </button>
+            {!syncConfigured && (
+              <button className="btn btn--ghost btn--block" onClick={() => navigate('/settings#sample')}>
+                <Sparkles size={18} /> Explore with sample data
+              </button>
+            )}
           </div>
         </div>
       ) : active ? (
@@ -183,7 +186,7 @@ export function HomeScreen() {
               Edit
             </Link>
           </div>
-          <div className="list">
+          <div className="list stagger">
             {days.map((d) => {
               const last = lastDone(d.id);
               return (

@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Minus, Plus, X } from 'lucide-react';
 import { WEEKDAY_LETTER, WEEK_ORDER } from '../utils/dates';
@@ -18,34 +18,52 @@ export function Sheet({
   children: ReactNode;
   actions?: ReactNode;
 }) {
+  // Keep the sheet mounted briefly after closing so it can slide away.
+  const [mounted, setMounted] = useState(open);
+  const [closing, setClosing] = useState(false);
+  const last = useRef<{ title?: ReactNode; children: ReactNode; actions?: ReactNode }>({ title, children, actions });
+  if (open) last.current = { title, children, actions };
+
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      setClosing(false);
+      return;
+    }
+    if (!mounted) return;
+    setClosing(true);
+    const t = setTimeout(() => {
+      setMounted(false);
+      setClosing(false);
+    }, 260);
+    return () => clearTimeout(t);
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prev;
-    };
+    return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!mounted) return null;
+  const view = open ? { title, children, actions } : last.current;
+  const cls = closing ? ' is-closing' : '';
   return createPortal(
     <>
-      <div className="sheet-backdrop" onClick={onClose} />
-      <div className="sheet" role="dialog" aria-modal="true">
+      <div className={`sheet-backdrop${cls}`} onClick={onClose} />
+      <div className={`sheet${cls}`} role="dialog" aria-modal="true" aria-hidden={closing || undefined}>
         <div className="sheet__grip" />
-        {title != null && (
+        {view.title != null && (
           <div className="sheet__head">
-            <div className="sheet__title">{title}</div>
+            <div className="sheet__title">{view.title}</div>
             <button className="icon-btn" onClick={onClose} aria-label="Close">
               <X size={20} />
             </button>
           </div>
         )}
-        <div className="sheet__body">{children}</div>
-        {actions && <div className="sheet__actions">{actions}</div>}
+        <div className="sheet__body">{view.children}</div>
+        {view.actions && <div className="sheet__actions">{view.actions}</div>}
       </div>
     </>,
     document.body,
@@ -130,8 +148,14 @@ export function Segmented<T extends string>({
   onChange: (v: T) => void;
   options: { value: T; label: string }[];
 }) {
+  const index = Math.max(0, options.findIndex((o) => o.value === value));
   return (
     <div className="segmented" role="group">
+      <span
+        className="segmented__thumb"
+        aria-hidden
+        style={{ width: `calc((100% - 6px - ${(options.length - 1) * 2}px) / ${options.length})`, transform: `translateX(calc(${index} * (100% + 2px)))` }}
+      />
       {options.map((o) => (
         <button key={o.value} type="button" aria-pressed={o.value === value} onClick={() => onChange(o.value)}>
           {o.label}

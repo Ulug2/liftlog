@@ -19,6 +19,7 @@ export function HistoryScreen() {
     return new Date(d.getFullYear(), d.getMonth(), 1);
   });
   const [selected, setSelected] = useState<string | null>(null);
+  const [slide, setSlide] = useState<'' | 'slide-next' | 'slide-prev'>('');
   const [logMenu, setLogMenu] = useState<DayLog | null>(null);
   const todayKey = localDateKey();
 
@@ -59,18 +60,18 @@ export function HistoryScreen() {
 
       <div className="card calendar">
         <div className="calendar__head">
-          <button className="icon-btn" aria-label="Previous month" onClick={() => { setSelected(null); setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1)); }}>
+          <button className="icon-btn" aria-label="Previous month" onClick={() => { setSelected(null); setSlide('slide-prev'); setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1)); }}>
             <ChevronLeft size={20} />
           </button>
           <div className="calendar__title">
             {month.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
             <span className="faint"> · {monthCount} {monthCount === 1 ? 'workout' : 'workouts'}</span>
           </div>
-          <button className="icon-btn" aria-label="Next month" onClick={() => { setSelected(null); setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1)); }}>
+          <button className="icon-btn" aria-label="Next month" onClick={() => { setSelected(null); setSlide('slide-next'); setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1)); }}>
             <ChevronRight size={20} />
           </button>
         </div>
-        <div className="calendar__grid">
+        <div className={`calendar__grid ${slide}`} key={monthPrefix}>
           {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
             <span key={i} className="calendar__dow">
               {d}
@@ -112,7 +113,7 @@ export function HistoryScreen() {
             </EmptyState>
           </div>
         ) : (
-          <div className="list">
+          <div className="list stagger" key={selected ?? monthPrefix}>
             {entries.map((e) =>
               e.kind === 'session' ? (
                 <SessionRow key={e.session.id} session={e.session} onClick={() => navigate(`/history/${e.session.id}`)} />

@@ -13,7 +13,8 @@ export default function ProgressScreen() {
   const navigate = useNavigate();
   const idx = workoutIndex(db.tables);
   const [q, setQ] = useState('');
-  const totalSeconds = idx.completed.reduce((a, s) => a + (s.duration_seconds ?? 0), 0);
+  const timed = idx.completed.filter((s) => s.duration_seconds != null);
+  const totalSeconds = timed.reduce((a, s) => a + (s.duration_seconds ?? 0), 0);
   const prs = useMemo(() => recentPRs(db, idx, 5), [db, idx]);
   const streak = weekStreak(idx);
 
@@ -54,11 +55,11 @@ export default function ProgressScreen() {
         <div className="page-title">Progress</div>
       </header>
 
-      <div className="stat-grid">
+      <div className="stat-grid stagger">
         <Stat label="Workouts" value={idx.completed.length} sub="completed" />
         <Stat label="This week" value={workoutsThisWeek(idx)} sub={streak > 1 ? `${streak}-week streak` : 'workouts'} />
-        <Stat label="Training time" value={fmtDurationShort(totalSeconds)} sub="total" />
-        <Stat label="Avg. workout" value={fmtDurationShort(totalSeconds / idx.completed.length)} sub="duration" />
+        <Stat label="Training time" value={timed.length ? fmtDurationShort(totalSeconds) : '–'} sub={timed.length < idx.completed.length ? 'logged in app' : 'total'} />
+        <Stat label="Avg. workout" value={timed.length ? fmtDurationShort(totalSeconds / timed.length) : '–'} sub={timed.length ? 'duration' : 'not recorded yet'} />
       </div>
 
       {prs.length > 0 && (
@@ -95,7 +96,7 @@ export default function ProgressScreen() {
           <Search size={18} />
           <input className="input" placeholder="Search exercises" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
-        <div className="list">
+        <div className="list stagger">
           {exercises.map(({ ex, last, count }) => {
             const unit = ex.weight_unit ?? db.profile.weight_unit;
             const top = setStats(last.sets, ex.exercise_type).topSet;

@@ -23,6 +23,7 @@ import {
   nowIso,
   onLocalChange,
   putMeta,
+  resetLocal,
   rowForKey,
   setSyncState,
 } from './db';
@@ -44,13 +45,23 @@ export async function startSync() {
   if (started) return;
   started = true;
   if (!syncConfigured) {
-    setSyncState({ status: 'local' });
+    setSyncState({ status: 'local', authChecked: true });
     return;
   }
   const sb = await getSupabase()!;
-  const { data } = await sb.auth.getSession();
-  handleSession(data.session);
-  sb.auth.onAuthStateChange((_event, session) => handleSession(session));
+  // Reads the saved login from this device (no network needed), so the app opens offline too.
+  let session: Session | null = null;
+  try {
+    session = (await sb.auth.getSession()).data.session;
+  } catch {
+    session = null;
+  }
+  await handleSession(session);
+  setSyncState({ authChecked: true });
+  sb.auth.onAuthStateChange((event, s) => {
+    // Token refreshes keep the same user; only a real sign-out clears it.
+    if (event === 'SIGNED_OUT' || s) void handleSession(s);
+  });
   window.addEventListener('online', () => schedule(0));
   window.addEventListener('offline', () => setSyncState({ status: 'offline' }));
   document.addEventListener('visibilitychange', () => {
@@ -60,17 +71,22 @@ export async function startSync() {
   setInterval(() => schedule(0), 60_000);
 }
 
-function handleSession(session: Session | null) {
+async function handleSession(session: Session | null) {
   const id = session?.user.id ?? null;
   if (id === userId) return;
   userId = id;
-  setSyncState({ email: session?.user.email ?? null });
+  setSyncState({ email: session?.user.email ?? null, userId: id });
   if (!id) {
     setSyncState({ status: 'local' });
     return;
   }
-  // First time this device syncs with this account: upload everything we have locally.
-  if (getMeta<string>('syncUser') !== id) {
+  const previous = getMeta<string>('syncUser');
+  if (previous && previous !== id) {
+    // A different account signed in on this device: start clean so data never mixes.
+    await resetLocal();
+  }
+  if (previous !== id) {
+    // First sync for this account on this device: upload anything logged before signing in.
     markAllDirty();
     putMeta('syncUser', id);
     putMeta('cursors', {});

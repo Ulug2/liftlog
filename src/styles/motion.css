@@ -1,0 +1,261 @@
+/*
+ * Motion. Restrained, quick and physical: things slide in from where they
+ * come from, settle with a soft spring, and never block input.
+ * Everything is disabled under prefers-reduced-motion.
+ */
+
+/* ---------- Keyframes ---------- */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes sheet-out {
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes route-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.995);
+  }
+}
+
+@keyframes route-push {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+}
+
+@keyframes route-pop {
+  from {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+}
+
+@keyframes screen-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes slide-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+}
+
+@keyframes slide-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.6);
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
+  }
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes grow {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+}
+
+/* ---------- Route transitions ---------- */
+
+.route--fade {
+  animation: route-fade var(--dur) var(--ease-out) both;
+}
+
+.route--push {
+  animation: route-push var(--dur) var(--ease-out) both;
+}
+
+.route--pop {
+  animation: route-pop var(--dur) var(--ease-out) both;
+}
+
+.screen--up {
+  animation: screen-up var(--dur-slow) var(--ease-spring) both;
+}
+
+/* ---------- Staggered lists ---------- */
+
+.stagger > * {
+  animation: rise-in var(--dur) var(--ease-out) both;
+}
+
+.stagger > *:nth-child(1) { animation-delay: 20ms; }
+.stagger > *:nth-child(2) { animation-delay: 50ms; }
+.stagger > *:nth-child(3) { animation-delay: 80ms; }
+.stagger > *:nth-child(4) { animation-delay: 110ms; }
+.stagger > *:nth-child(5) { animation-delay: 140ms; }
+.stagger > *:nth-child(6) { animation-delay: 170ms; }
+.stagger > *:nth-child(7) { animation-delay: 200ms; }
+.stagger > *:nth-child(8) { animation-delay: 230ms; }
+.stagger > *:nth-child(n + 9) { animation-delay: 250ms; }
+
+/* ---------- Small touches ---------- */
+
+.resume-bar__dot {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.set-check.is-done svg {
+  animation: pop var(--dur) var(--ease-spring);
+}
+
+.set-row {
+  transition: background var(--dur) var(--ease);
+}
+
+.week-dot__mark {
+  animation: grow var(--dur-slow) var(--ease-spring) both;
+}
+
+.week-dot:nth-child(2) .week-dot__mark { animation-delay: 30ms; }
+.week-dot:nth-child(3) .week-dot__mark { animation-delay: 60ms; }
+.week-dot:nth-child(4) .week-dot__mark { animation-delay: 90ms; }
+.week-dot:nth-child(5) .week-dot__mark { animation-delay: 120ms; }
+.week-dot:nth-child(6) .week-dot__mark { animation-delay: 150ms; }
+.week-dot:nth-child(7) .week-dot__mark { animation-delay: 180ms; }
+
+.logger.from-right {
+  animation: slide-from-right var(--dur) var(--ease-out) both;
+}
+
+.logger.from-left {
+  animation: slide-from-left var(--dur) var(--ease-out) both;
+}
+
+.logger.from-none {
+  animation: rise-in var(--dur) var(--ease-out) both;
+}
+
+.rest-timer {
+  animation: rise-in var(--dur) var(--ease-spring) both;
+}
+
+.rest-timer__bar {
+  transition: transform 250ms linear;
+}
+
+.chart__line {
+  stroke-dasharray: 1;
+  animation: draw 700ms var(--ease-out) both;
+}
+
+.chart__area {
+  animation: fade-in 700ms var(--ease-out) both;
+}
+
+.calendar__grid.slide-next {
+  animation: slide-from-right var(--dur) var(--ease-out) both;
+}
+
+.calendar__grid.slide-prev {
+  animation: slide-from-left var(--dur) var(--ease-out) both;
+}
+
+.summary__check {
+  animation: pop var(--dur-slow) var(--ease-spring) both;
+}
+
+.summary .stat-grid > * {
+  animation: rise-in var(--dur) var(--ease-out) both;
+}
+
+.summary .stat-grid > *:nth-child(2) { animation-delay: 60ms; }
+.summary .stat-grid > *:nth-child(3) { animation-delay: 120ms; }
+.summary .stat-grid > *:nth-child(4) { animation-delay: 180ms; }
+
+.list-row,
+.card,
+.chip {
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.progress-bar > div {
+  transition: transform var(--dur-slow) var(--ease-spring);
+}
+
+.auth-card {
+  animation: rise-in var(--dur-slow) var(--ease-out) both;
+}
+
+.auth-logo {
+  animation: grow var(--dur-slow) var(--ease-spring) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
