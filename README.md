@@ -20,7 +20,7 @@ The app works fully **without** Supabase: everything is stored on the device in 
 
 - **Supabase project:** `liftlog` (`tqbldynnwryogarysijp`, us-east-1, free tier). Schema from `supabase/migrations/` is applied.
 - **Client config:** `.env.production` holds the project URL and *publishable* key. These are public by design (they ship in the browser bundle); Row Level Security is what protects the data.
-- **Hosting:** Vercel, auto-deploying from `main` (`vercel.json` sets the build and cache headers for the service worker).
+- **Hosting:** Vercel project `liftlog` (production: https://liftlog-ulykbek-s-projects.vercel.app), auto-deploying from `main` (`vercel.json` sets the build and cache headers for the service worker).
 
 ## Turn on cloud sync (Supabase) for a new project
 
