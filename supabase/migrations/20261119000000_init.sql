@@ -3,15 +3,13 @@
 -- Rows are created on the device (client UUIDs) and soft-deleted with deleted_at so
 -- deletions sync too. Workout tables hold snapshots so routine edits never rewrite history.
 
-create extension if not exists pgcrypto;
-
 -- ---------------------------------------------------------------------------
 -- Shared trigger functions
 -- ---------------------------------------------------------------------------
 
 -- Server-side change cursor for incremental pulls.
 create or replace function public.set_synced_at() returns trigger
-language plpgsql as $$
+language plpgsql set search_path = '' as $$
 begin
   new.synced_at := clock_timestamp();
   return new;
@@ -19,7 +17,7 @@ end $$;
 
 -- Last-write-wins guard: never let a stale device overwrite a newer row.
 create or replace function public.reject_stale_update() returns trigger
-language plpgsql as $$
+language plpgsql set search_path = '' as $$
 begin
   if new.updated_at < old.updated_at then
     return null; -- silently keep the newer server row
@@ -222,9 +220,6 @@ create index on public.workout_sets (workout_exercise_id);
 create index on public.day_logs (user_id, synced_at);
 create index on public.day_logs (user_id, log_date);
 create index on public.activity_logs (user_id, synced_at);
--- Only one active workout per user
-create unique index one_active_workout on public.workout_sessions (user_id)
-  where status = 'active' and deleted_at is null;
 
 -- ---------------------------------------------------------------------------
 -- Triggers + Row Level Security

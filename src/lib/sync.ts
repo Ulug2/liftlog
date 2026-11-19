@@ -182,7 +182,11 @@ export async function signIn(email: string, password: string) {
 export async function signUp(email: string, password: string) {
   const sb = await getSupabase();
   if (!sb) throw new Error('Sync is not configured');
-  const { data, error } = await sb.auth.signUp({ email, password });
+  const { data, error } = await sb.auth.signUp({
+    email,
+    password,
+    options: { emailRedirectTo: `${window.location.origin}${window.location.pathname}` },
+  });
   if (error) throw error;
   return { needsConfirmation: !data.session };
 }
