@@ -14,6 +14,8 @@ import {
   StickyNote,
   Trash2,
   Undo2,
+  Bell,
+  X,
 } from 'lucide-react';
 import { useDb, getState } from '../../lib/db';
 import {
@@ -41,14 +43,15 @@ import {
   uncompleteSet,
   updateSet,
 } from '../../lib/actions';
-import { ActionSheet, EmptyState, Sheet, useNow } from '../../components/ui';
+import { ActionSheet, EmptyState, Sheet, showToast, useNow } from '../../components/ui';
+import { enableNotifications, useNotifyStatus } from '../../lib/notify';
 import { ExercisePicker } from '../../components/ExercisePicker';
 import { SetTable, fmtSet } from '../../components/SetTable';
 import { RestTimer } from './RestTimer';
 import { targetLabel } from '../routines/DayEditor';
 import { fmtDate, fmtDuration, fmtRest } from '../../utils/dates';
 import type { WeightUnit, WorkoutExercise, WorkoutSession } from '../../types/models';
-import { setWorkoutUi } from '../../lib/db';
+import { getMeta, putMeta, setWorkoutUi } from '../../lib/db';
 import { useWakeLock } from './useWakeLock';
 
 export function ActiveWorkout() {
@@ -164,6 +167,8 @@ export function ActiveWorkout() {
           <Pause size={16} /> Workout paused — tap to resume
         </button>
       )}
+
+      <NotifyPrompt />
 
       <ExerciseStrip wes={wes} idx={idx} currentId={current?.id} onPick={jumpTo} />
 
@@ -468,6 +473,41 @@ function ExerciseHistoryList({ exerciseId, excludeSessionId, unit }: { exerciseI
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+/* ------------------------- one-time notification prompt ------------------------- */
+
+function NotifyPrompt() {
+  const status = useNotifyStatus();
+  const [hidden, setHidden] = useState(() => !!getMeta<boolean>('notifyPromptDismissed'));
+  const [busy, setBusy] = useState(false);
+  if (hidden || status !== 'off') return null;
+  const dismiss = () => {
+    putMeta('notifyPromptDismissed', true);
+    setHidden(true);
+  };
+  return (
+    <div className="notify-prompt">
+      <Bell size={18} style={{ flex: 'none' }} />
+      <span style={{ flex: 1 }}>Get an alert on your Lock Screen when rest is over.</span>
+      <button
+        className="btn btn--sm btn--primary"
+        disabled={busy}
+        onClick={async () => {
+          setBusy(true);
+          const r = await enableNotifications();
+          setBusy(false);
+          if (r.ok) dismiss();
+          else if (r.message) showToast(r.message);
+        }}
+      >
+        Turn on
+      </button>
+      <button className="icon-btn" style={{ width: 32, height: 32 }} onClick={dismiss} aria-label="Dismiss">
+        <X size={16} />
+      </button>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { workoutIndex } from '../../lib/queries';
 import { Field, Segmented, Sheet, Stepper, showToast } from '../../components/ui';
 import { fmtRest, fmtRelativeDay } from '../../utils/dates';
 import { exportCsv, exportJson } from './exporters';
+import { NotificationsCard } from './NotificationsCard';
 
 declare const __APP_VERSION__: string;
 
@@ -62,6 +63,11 @@ export default function SettingsScreen() {
             />
           </Field>
         </div>
+      </section>
+
+      <section className="settings-group">
+        <div className="section-title">Notifications</div>
+        <NotificationsCard />
       </section>
 
       <section className="settings-group">

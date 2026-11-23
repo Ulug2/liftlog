@@ -4,6 +4,7 @@ import type { RestState } from '../../types/models';
 import { adjustRest, pauseRest, resumeRest, stopRest } from '../../lib/actions';
 import { fmtClock } from '../../utils/dates';
 import { useNow } from '../../components/ui';
+import { chime } from '../../utils/audio';
 
 /**
  * Compact rest timer. Remaining time is always endsAt − now, so it stays correct
@@ -21,6 +22,7 @@ export function RestTimer({ rest }: { rest: RestState }) {
     if (done && running && !notified.current) {
       notified.current = true;
       navigator.vibrate?.([120, 60, 120]);
+      if (document.visibilityState === 'visible') chime();
     }
     if (!done) notified.current = false;
   }, [done, running]);

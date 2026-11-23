@@ -71,7 +71,14 @@ export async function startSync() {
   setInterval(() => schedule(0), 60_000);
 }
 
+let accessToken: string | null = null;
+/** Latest access token (kept fresh by Supabase's auto-refresh) for fire-and-forget requests. */
+export function getAccessToken() {
+  return accessToken;
+}
+
 async function handleSession(session: Session | null) {
+  accessToken = session?.access_token ?? null;
   const id = session?.user.id ?? null;
   if (id === userId) return;
   userId = id;

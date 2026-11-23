@@ -76,9 +76,17 @@ public/                  manifest, service worker, icons
 - **Sync conflicts:** client-generated UUIDs make uploads idempotent (no duplicate sessions on retry). Newest `updated_at` wins on both sides; a database trigger refuses stale overwrites. Deletes are soft (`deleted_at`) so they sync.
 - **Estimated 1RM** uses Epley, only for weight × reps sets of 1–12 reps, and is labelled as an estimate.
 
+### Timer notifications
+
+iPhone web apps can't show a live, ticking Lock Screen timer (Live Activities are native-only), so LiftLog uses notifications instead (Settings → Notifications, or the prompt on the workout screen; the app must be installed to the Home Screen):
+
+- When you leave the app mid-workout it posts **"Push in progress · started 6:05 PM"** and **"Resting · next set at 6:12:30 PM"** (with the next set's target), and schedules a **"Rest over"** push for the exact end time.
+- Coming back to the app clears them and cancels the pending push; the in-app timer takes over (with a chime when rest ends).
+- Server side: `push_subscriptions` + `notification_schedule` tables (RLS), a `pg_cron` job every 5 s that only wakes the `push` Edge Function when an alert is due, and a dependency-free Web Push sender (`supabase/functions/push/webpush.ts`, RFC 8291/8292). VAPID keys are generated inside Supabase on first use and never leave the server.
+
 ### iPhone caveats worth knowing
 
-- iOS suspends JavaScript in the background, so the rest timer can't buzz while the phone is locked. When you come back it shows "Rest complete" immediately and the time is exact. Background alerts would need Web Push, which was intentionally left out.
+- iOS suspends JavaScript in the background; the rest-over alert therefore comes from the server as a push notification (see above). Without notifications enabled, the app shows "Rest complete" the moment you come back and the time is exact.
 - iOS may clear site data for web apps that go unused for several weeks. Installing to the Home Screen and turning on sync protects against this. The app also asks for persistent storage.
 - Screen wake lock keeps the display on during a workout on iOS 16.4+.
 

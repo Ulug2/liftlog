@@ -14,6 +14,7 @@ import { WorkoutSummary } from '../features/workout/WorkoutSummary';
 import { HistoryScreen } from '../features/history/HistoryScreen';
 import { SessionDetail } from '../features/history/SessionDetail';
 import { AuthScreen } from '../features/auth/AuthScreen';
+import { NotificationBridge } from '../features/workout/NotificationBridge';
 
 // Less-frequently used screens are split out so Home and the workout open instantly.
 const ProgressScreen = lazy(() => import('../features/progress/ProgressScreen'));
@@ -86,6 +87,7 @@ export function App() {
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <RestoreWorkout />
+      <NotificationBridge />
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<HomeScreen />} />

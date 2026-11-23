@@ -399,10 +399,12 @@ a.list-row:active {
 
 .sheet-backdrop.is-closing {
   animation: fade-out var(--dur) var(--ease) both;
+  pointer-events: none;
 }
 
 .sheet.is-closing {
   animation: sheet-out var(--dur) var(--ease) both;
+  pointer-events: none;
 }
 
 .sheet__grip {

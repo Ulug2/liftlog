@@ -1023,3 +1023,17 @@
   color: var(--text-3);
   text-align: center;
 }
+
+.notify-prompt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 var(--gap-4) var(--gap-3);
+  padding: 8px 6px 8px 14px;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px solid var(--border);
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  animation: rise-in var(--dur) var(--ease-out) both;
+}

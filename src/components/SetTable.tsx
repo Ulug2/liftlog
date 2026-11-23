@@ -4,6 +4,7 @@ import type { ExerciseType, WeightUnit, WorkoutSet } from '../types/models';
 import { NumberField } from './NumberField';
 import { ActionSheet } from './ui';
 import { fmtNum, fromDisplay, toDisplay } from '../utils/units';
+import { unlockAudio } from '../utils/audio';
 
 type Col = 'weight' | 'reps' | 'time' | 'distance';
 
@@ -74,6 +75,7 @@ export function SetTable({
   const grid = `${showPrev ? '36px minmax(0,1fr)' : '36px'} ${cols.map(() => 'minmax(0,1fr)').join(' ')} 48px`;
 
   const tryToggle = (s: WorkoutSet) => {
+    unlockAudio();
     if (!s.completed) {
       // Don't record an empty set — jump to the first missing value instead.
       const missing = requiredFor(type).find((c) => valueOf(s, c) == null);
