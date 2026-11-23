@@ -1,14 +1,9 @@
 /**
  * Timer notifications.
  *
- * iPhone web apps can't show a live, ticking Lock Screen timer (that's Live Activities,
- * native apps only). What they can do — once added to the Home Screen — is show
- * notifications and receive Web Push. So:
- *   • When LiftLog goes to the background mid-workout, it posts a "workout in progress"
- *     notification and a "resting · next set at 6:12:30 PM" notification.
- *   • It also schedules a "Rest over" push on the server, delivered at the exact time
- *     even if the phone is locked.
- *   • When LiftLog comes back to the foreground, all of it is cleared/cancelled.
+ * One notification only: "Rest over", when the rest timer ends while LiftLog is in the
+ * background. It's scheduled on the server (Web Push) so it arrives even with the phone
+ * locked, and cancelled as soon as you come back to the app.
  */
 import { useSyncExternalStore } from 'react';
 import { getMeta, putMeta } from './db';
@@ -92,7 +87,6 @@ export async function enableNotifications(): Promise<{ ok: boolean; message?: st
     if (error) throw error;
     putMeta('notifyEnabled', true);
     bump();
-    void sendTestNotification();
     return { ok: true };
   } catch (e) {
     console.warn('[liftlog] enabling notifications failed', e);

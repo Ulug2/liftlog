@@ -51,35 +51,46 @@ self.addEventListener('fetch', (event) => {
 });
 
 /* ---------------- Notifications ---------------- */
+// Only one kind of notification exists: "Rest over". It is never silent, so the phone
+// plays its normal alert — on an iPhone in silent mode that means the vibration.
+
+const WORKOUT_URL = new URL('./#/workout', self.registration.scope).href;
 
 self.addEventListener('push', (event) => {
   let data = {};
   try {
     data = event.data ? event.data.json() : {};
   } catch {
-    data = { title: 'LiftLog', body: event.data ? event.data.text() : '' };
+    data = { title: 'Rest over', body: event.data ? event.data.text() : '' };
   }
   event.waitUntil(
-    self.registration.showNotification(data.title || 'LiftLog', {
-      body: data.body || '',
-      tag: data.tag || 'liftlog',
+    self.registration.showNotification(data.title || 'Rest over', {
+      body: data.body || 'Time for your next set.',
+      tag: data.tag || 'rest',
       renotify: true,
+      silent: false,
+      requireInteraction: true,
+      vibrate: [300, 120, 300, 120, 300],
       icon: './icons/icon-192.png',
       badge: './icons/icon-192.png',
-      data: { url: data.url || './' },
+      data: { url: WORKOUT_URL },
     }),
   );
 });
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const url = new URL((event.notification.data && event.notification.data.url) || './', self.registration.scope).href;
   event.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
-      for (const client of list) {
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async (list) => {
+      const client = list[0];
+      if (client) {
+        // App is running (or suspended): bring it forward on the workout screen.
+        client.postMessage({ type: 'open-workout' });
         if ('focus' in client) return client.focus();
+        return;
       }
-      return self.clients.openWindow(url);
+      // App was closed: open it straight on the workout.
+      return self.clients.openWindow(WORKOUT_URL);
     }),
   );
 });

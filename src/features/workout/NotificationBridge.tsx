@@ -1,22 +1,17 @@
 import { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getState } from '../../lib/db';
 import { workoutIndex } from '../../lib/queries';
-import { cancelRestPush, clearLocal, getNotifyStatus, scheduleRestPush, showLocal } from '../../lib/notify';
+import { cancelRestPush, clearLocal, getNotifyStatus, scheduleRestPush } from '../../lib/notify';
 import { fmtSet } from '../../components/SetTable';
-import { fmtClock } from '../../utils/dates';
-
-const TAGS = ['workout', 'rest', 'test'];
-
-const clock = (d: Date, seconds = false) =>
-  d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', ...(seconds ? { second: '2-digit' } : {}) });
 
 /** What's next after the rest: "Set 3 of 4 · Barbell Bench Press · 160 × 8" */
-function nextSetLabel(): string | null {
+function nextSetLabel(): string {
   const s = getState();
   const ui = s.workoutUi;
   const idx = workoutIndex(s.tables);
   const session = idx.active;
-  if (!ui?.rest || !session) return null;
+  if (!ui?.rest || !session) return 'Time for your next set.';
   const wes = (idx.weBySession.get(session.id) ?? []).filter((w) => w.status !== 'skipped');
   const start = Math.max(0, wes.findIndex((w) => w.id === ui.rest!.workoutExerciseId));
   for (const we of wes.slice(start)) {
@@ -28,48 +23,34 @@ function nextSetLabel(): string | null {
       return `Set ${next.set_number} of ${sets.length} · ${we.exercise_name_snapshot}${target}`;
     }
   }
-  return 'All sets done — finish when you’re ready';
+  return 'All sets done — finish when you’re ready.';
 }
 
 /**
- * Posts Lock Screen notifications when LiftLog goes to the background during a
- * workout, and clears them as soon as it comes back.
+ * The only notification LiftLog sends: "Rest over", at the moment the rest timer ends.
+ * When the app goes to the background with a rest running, the alert is scheduled on the
+ * server (so it arrives even with the phone locked). Coming back cancels it — the in-app
+ * timer takes over. Tapping the notification opens the workout.
  */
 export function NotificationBridge() {
+  const navigate = useNavigate();
   const scheduled = useRef(false);
 
   useEffect(() => {
     const onHidden = () => {
       if (getNotifyStatus() !== 'on') return;
       const s = getState();
-      const session = workoutIndex(s.tables).active;
-      if (!session) return;
-
-      const started = new Date(session.started_at);
-      void showLocal(
-        'workout',
-        `${session.workout_name_snapshot} in progress`,
-        session.paused_at ? `Paused · started ${clock(started)}` : `Started ${clock(started)} · tap to return`,
-      );
-
       const rest = s.workoutUi?.rest;
-      const next = nextSetLabel() ?? '';
-      if (rest?.endsAt && rest.endsAt > Date.now() + 1500) {
-        const at = new Date(rest.endsAt);
-        void showLocal('rest', `Resting · next set at ${clock(at, true)}`, next);
-        if (s.sync.userId) {
-          scheduleRestPush(s.sync.userId, at, 'Rest over — time for your next set', next);
-          scheduled.current = true;
-        }
-      } else if (rest && rest.endsAt == null && rest.pausedRemaining != null) {
-        void showLocal('rest', `Rest paused · ${fmtClock(rest.pausedRemaining)} left`, next);
-      }
+      if (!workoutIndex(s.tables).active || !rest?.endsAt || !s.sync.userId) return;
+      if (rest.endsAt <= Date.now() + 1500) return; // already (nearly) over
+      scheduleRestPush(s.sync.userId, new Date(rest.endsAt), 'Rest over', nextSetLabel());
+      scheduled.current = true;
     };
 
     const onVisible = () => {
-      void clearLocal(TAGS);
-      // Back in the app: the in-app timer takes over. Also cancels anything left
-      // over if the app was closed while a rest push was pending.
+      void clearLocal(['rest', 'workout', 'test']);
+      // Back in the app: the in-app timer takes over. This also cancels anything left
+      // over if the app was closed while an alert was pending.
       if (scheduled.current || getNotifyStatus() === 'on') cancelRestPush();
       scheduled.current = false;
     };
@@ -79,6 +60,18 @@ export function NotificationBridge() {
     if (document.visibilityState === 'visible') onVisible();
     return () => document.removeEventListener('visibilitychange', onVis);
   }, []);
+
+  // Tapping the notification: the service worker asks the open app to show the workout.
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    const onMessage = (e: MessageEvent) => {
+      if (e.data?.type === 'open-workout') {
+        navigate(workoutIndex(getState().tables).active ? '/workout' : '/');
+      }
+    };
+    navigator.serviceWorker.addEventListener('message', onMessage);
+    return () => navigator.serviceWorker.removeEventListener('message', onMessage);
+  }, [navigate]);
 
   return null;
 }

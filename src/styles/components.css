@@ -488,7 +488,9 @@ a.list-row:active {
   z-index: 50;
   background: var(--bg-deep);
   border-top: 1px solid var(--border);
-  padding-bottom: var(--safe-bottom);
+  /* Sit low: let the home-indicator strip overlap the bar's empty bottom edge
+     instead of reserving the full 34pt safe area below the tabs. */
+  padding-bottom: max(calc(var(--safe-bottom) - 22px), 4px);
 }
 
 .bottom-nav__inner {
@@ -498,13 +500,13 @@ a.list-row:active {
   max-width: var(--page-max);
   margin: 0 auto;
   height: var(--nav-h);
-  padding: 6px 8px;
+  padding: 4px 8px;
 }
 
 .bottom-nav__pill {
   position: absolute;
-  top: 6px;
-  bottom: 6px;
+  top: 4px;
+  bottom: 4px;
   left: 8px;
   width: calc((100% - 16px) / 4);
   border-radius: 14px;
@@ -664,7 +666,7 @@ a.list-row:active {
 .toast {
   position: fixed;
   left: 50%;
-  bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px);
+  bottom: calc(var(--nav-h) + max(calc(var(--safe-bottom) - 22px), 4px) + 16px);
   translate: -50% 0;
   z-index: 200;
   display: flex;

@@ -12,7 +12,7 @@ export function NotificationsCard() {
     setMsg(null);
     const r = await enableNotifications();
     setBusy(false);
-    setMsg(r.ok ? 'Done — you should get a test notification in a moment.' : r.message ?? null);
+    setMsg(r.ok ? 'On. Lock your phone during a rest to try it.' : r.message ?? null);
   };
 
   if (status === 'unsupported') {
@@ -39,13 +39,13 @@ export function NotificationsCard() {
       <div className="list-row" style={{ alignItems: 'flex-start' }}>
         {status === 'on' ? <BellRing size={20} style={{ marginTop: 2 }} /> : status === 'denied' ? <BellOff size={20} className="muted" style={{ marginTop: 2 }} /> : <Bell size={20} className="muted" style={{ marginTop: 2 }} />}
         <div className="list-row__main">
-          <div className="list-row__title">Timer notifications</div>
+          <div className="list-row__title">Rest-over alert</div>
           <div className="list-row__sub" style={{ whiteSpace: 'normal' }}>
             {status === 'on'
-              ? 'On. When you leave the app mid-workout, your Lock Screen shows the workout and when your next set is due, and alerts you when rest is over.'
+              ? 'On. You’ll get one alert when your rest is over (only while LiftLog isn’t open). Tap it to go back to your workout.'
               : status === 'denied'
                 ? 'Blocked. Allow them in iPhone Settings → Notifications → LiftLog.'
-                : 'Get a Lock Screen alert when rest is over, plus your workout status while the app is in the background.'}
+                : 'Get one alert when your rest is over, even with the phone locked.'}
           </div>
           {msg && (
             <div className="list-row__sub" style={{ whiteSpace: 'normal', color: 'var(--text)', marginTop: 6 }}>
@@ -63,8 +63,8 @@ export function NotificationsCard() {
       )}
       {status === 'on' && (
         <>
-          <button className="list-row" onClick={() => { void sendTestNotification(); setMsg('Test sent — lock your phone to see it if it doesn’t appear.'); }}>
-            <span className="list-row__main">Send a test notification</span>
+          <button className="list-row" onClick={() => { void sendTestNotification(); setMsg('Test sent. Lock your phone if it doesn’t show right away.'); }}>
+            <span className="list-row__main">Send a test alert</span>
           </button>
           <button className="list-row" onClick={() => { void disableNotifications(); setMsg(null); }}>
             <span className="list-row__main" style={{ color: 'var(--danger)' }}>Turn off</span>

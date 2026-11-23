@@ -76,13 +76,14 @@ public/                  manifest, service worker, icons
 - **Sync conflicts:** client-generated UUIDs make uploads idempotent (no duplicate sessions on retry). Newest `updated_at` wins on both sides; a database trigger refuses stale overwrites. Deletes are soft (`deleted_at`) so they sync.
 - **Estimated 1RM** uses Epley, only for weight × reps sets of 1–12 reps, and is labelled as an estimate.
 
-### Timer notifications
+### Rest-over alert
 
-iPhone web apps can't show a live, ticking Lock Screen timer (Live Activities are native-only), so LiftLog uses notifications instead (Settings → Notifications, or the prompt on the workout screen; the app must be installed to the Home Screen):
+One notification only: **"Rest over"**, delivered at the moment the rest timer ends while LiftLog is in the background (phone locked or another app open). Turn it on in Settings → Notifications (the app must be installed to the Home Screen).
 
-- When you leave the app mid-workout it posts **"Push in progress · started 6:05 PM"** and **"Resting · next set at 6:12:30 PM"** (with the next set's target), and schedules a **"Rest over"** push for the exact end time.
-- Coming back to the app clears them and cancels the pending push; the in-app timer takes over (with a chime when rest ends).
-- Server side: `push_subscriptions` + `notification_schedule` tables (RLS), a `pg_cron` job every 5 s that only wakes the `push` Edge Function when an alert is due, and a dependency-free Web Push sender (`supabase/functions/push/webpush.ts`, RFC 8291/8292). VAPID keys are generated inside Supabase on first use and never leave the server.
+- It's a normal (non-silent) notification, so a muted iPhone vibrates for it — as long as LiftLog's notifications have Sounds on and *Settings → Sounds & Haptics → Haptics* is set to play in Silent Mode.
+- Tapping it opens the workout screen, whether LiftLog was running, suspended or closed.
+- Coming back to the app before the timer ends cancels it; the in-app timer chimes instead.
+- Server side: `push_subscriptions` + `notification_schedule` tables (RLS), a `pg_cron` job every 2 s that only wakes the `push` Edge Function when an alert is due, and a dependency-free Web Push sender (`supabase/functions/push/webpush.ts`, RFC 8291/8292). VAPID keys are generated inside Supabase on first use and never leave the server.
 
 ### iPhone caveats worth knowing
 
