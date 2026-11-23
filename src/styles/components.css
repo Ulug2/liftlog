@@ -681,3 +681,30 @@ a.list-row:active {
   animation: toast-in var(--dur-slow) var(--ease-spring) both;
   max-width: calc(100vw - 32px);
 }
+
+/*
+ * Installed (Home Screen) app: there is no Safari toolbar, only the thin home
+ * indicator. Pin the tabs right to the bottom edge and let the indicator float
+ * over the bar's lower strip, like native apps do. Also guard against iOS
+ * standalone layouts that stop short of the physical bottom edge.
+ */
+@media (display-mode: standalone) {
+  .app-shell,
+  .screen {
+    bottom: auto;
+    height: 100vh;
+    height: 100lvh;
+  }
+
+  .bottom-nav {
+    padding-bottom: max(calc(var(--safe-bottom) - 30px), 2px);
+  }
+
+  .bottom-nav__inner {
+    height: 52px;
+  }
+
+  .workout-foot {
+    padding-bottom: max(calc(var(--safe-bottom) - 22px), 8px);
+  }
+}
